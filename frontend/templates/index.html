@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="hero">
+    <h1>Bem-vindo à GR Diesel Eletro</h1>
+    <p>Gerencie clientes, serviços, peças e notas. Use o painel para iniciar um novo serviço ou cadastrar um cliente.</p>
+    <div class="cta">
+      <a class="btn" href="/cliente/novo">Cadastrar cliente</a>
+      <a class="btn ghost" href="/servico/novo/1">Registrar serviço</a>
+    </div>
+  </div>
+
+  <div class="layout" style="grid-template-columns:1fr 320px">
+    <div>
+      <h2 class="mb">Últimos serviços</h2>
+      <table class="table">
+        <thead><tr><th>ID</th><th>Cliente</th><th>Descrição</th><th>Data</th><th>Nota</th></tr></thead>
+        <tbody>
+          {% for s in servicos %}
+          <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.cliente.nome }}</td>
+            <td>{{ s.descricao or '-' }}</td>
+            <td>{{ s.created_at }}</td>
+            <td><a href="/nota/{{ s.id }}">Ver nota</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="muted">Nenhum serviço encontrado</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <aside class="card">
+      <h3>Clientes recentes</h3>
+      <ul>
+        {% for c in servicos|map(attribute='cliente')|unique %}
+          <li>{{ c.nome }} — <span class="muted">{{ c.telefone }}</span></li>
+        {% endfor %}
+      </ul>
+      <div class="mb text-right"><a class="btn ghost" href="/clientes">Ver todos os clientes</a></div>
+    </aside>
+  </div>
+{% endblock %}

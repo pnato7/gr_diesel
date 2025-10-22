@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <h1>Nota - Serviço #{{ servico.id }}</h1>
+  <p>Cliente: {{ servico.cliente.nome }}</p>
+  <p>Descrição: {{ servico.descricao }}</p>
+  <h3>Peças</h3>
+  <ul>
+    {% for p in servico.pecas %}
+      <li>{{ p.nome }} - {{ p.unidade }} x R$ {{ '%.2f'|format(p.valor_unitario) }} = R$ {{ '%.2f'|format(p.valor_total) }}</li>
+    {% endfor %}
+  </ul>
+  <p>Total peças: R$ {{ '%.2f'|format(servico.nota.total_pecas if servico.nota else 0.0) }}</p>
+  <p>Mão de obra: R$ {{ '%.2f'|format(servico.mao_de_obra) }}</p>
+  <p><strong>Total: R$ {{ '%.2f'|format(servico.nota.total if servico.nota else (servico.mao_de_obra + (servico.pecas|sum(attribute='valor_total')))) }}</strong></p>
+{% endblock %}

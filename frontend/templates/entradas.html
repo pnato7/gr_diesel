@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <h1>Entradas (Relatório)</h1>
+  <table class="table">
+    <thead><tr><th>ID</th><th>Serviço</th><th>Total Peças</th><th>Total</th><th>Data</th></tr></thead>
+    <tbody>
+      {% for n in notas %}
+      <tr>
+        <td>{{ n.id }}</td>
+        <td>{{ n.servico.id }} - {{ n.servico.cliente.nome }}</td>
+        <td>R$ {{ '%.2f'|format(n.total_pecas) }}</td>
+        <td>R$ {{ '%.2f'|format(n.total) }}</td>
+        <td>{{ n.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

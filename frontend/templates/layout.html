@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>GR Diesel Eletro LTDA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <header class="navbar">
+        <div class="brand">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" onerror="this.style.display='none'">
+          <div>GR Diesel Eletro LTDA</div>
+        </div>
+        <nav>
+          <a href="/" class="{% if request.path == '/' %}active{% endif %}">Início</a>
+          <a href="/clientes" class="{% if request.path.startswith('/clientes') %}active{% endif %}">Clientes</a>
+          <a href="/cliente/novo" class="{% if request.path == '/cliente/novo' %}active{% endif %}">Novo Cliente</a>
+          <a href="/servico/novo/1" class="{% if request.path.startswith('/servico') %}active{% endif %}">Novo Serviço</a>
+          <a href="/entradas" class="{% if request.path == '/entradas' %}active{% endif %}">Entradas</a>
+          <a href="/login" class="{% if request.path == '/login' %}active{% endif %}">Login</a>
+        </nav>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar card">
+          <ul>
+            <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Dashboard</a></li>
+            <li><a href="/clientes" class="{% if request.path.startswith('/clientes') %}active{% endif %}">Clientes</a></li>
+            <li><a href="/cliente/novo" class="{% if request.path == '/cliente/novo' %}active{% endif %}">Registrar cliente</a></li>
+            <li><a href="/servico/novo/1" class="{% if request.path.startswith('/servico') %}active{% endif %}">Registrar serviço</a></li>
+            <li><a href="/entradas" class="{% if request.path == '/entradas' %}active{% endif %}">Entradas</a></li>
+            <li><a href="/export/clients">Exportar clientes</a></li>
+          </ul>
+        </aside>
+
+        <main class="main">
+          <div class="card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="mb">
+                  {% for category, message in messages %}
+                    <div class="card" style="background:transparent;border-left:4px solid #e6eefc;padding:10px;margin-bottom:6px">{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+          </div>
+        </main>
+      </div>
+
+      <footer class="footer">© {{ current_year or "2025" }} GR Diesel Eletro LTDA — Todos os direitos reservados</footer>
+    </div>
+
+    {% block scripts %}{% endblock %}
+  </body>
+  </html>
