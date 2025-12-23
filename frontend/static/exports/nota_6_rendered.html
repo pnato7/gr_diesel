@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nota 6</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#f7f7f7}
+.navbar{background:#222;color:#fff;padding:10px;display:flex;justify-content:space-between;align-items:center}
+.nav-links{list-style:none;display:flex;gap:12px;margin:0;padding:0}
+.nav-links li a{color:#fff;text-decoration:none}
+.container{padding:20px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid #ddd;padding:8px}
+.footer{background:#222;color:#fff;padding:12px;text-align:center;position:fixed;bottom:0;width:100%}
+.messages{margin-bottom:12px}
+.flash{padding:8px;margin:4px 0}
+.flash.success{background:#d4edda}
+.flash.danger{background:#f8d7da}
+.flash.info{background:#d1ecf1}
+
+/* Global reset and base */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --primary:#1f6feb;
+  --accent:#0ea5a4;
+  --danger:#ef4444;
+  --success:#10b981;
+  --shadow:0 6px 18px rgba(23,23,23,0.06);
+  --radius:8px;
+  --gap:16px;
+}
+html,body{height:100%;width:100%}
+body{font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#0f172a;line-height:1.45;padding:0}
+
+/* Layout container */
+.container{width:100%;max-width:100%;margin:0;padding:12px}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:var(--gap)}
+
+/* Navbar */
+.navbar{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,var(--primary),#2563eb);color:#fff;padding:12px 24px;width:100%;border-radius:0}
+.navbar .brand{display:flex;align-items:center;gap:12px;font-weight:700}
+.navbar .brand img{height:36px;width:36px;border-radius:6px;object-fit:cover}
+.navbar nav{display:flex;gap:10px;align-items:center}
+.navbar a{color:rgba(255,255,255,0.95);text-decoration:none;padding:8px 12px;border-radius:8px}
+.navbar a:hover{background:rgba(255,255,255,0.08)}
+.navbar a.active{background:rgba(255,255,255,0.16);box-shadow:inset 0 -2px 0 rgba(255,255,255,0.06);font-weight:600}
+.navbar .btn{background:rgba(255,255,255,0.12);border:none;color:#fff;padding:8px 12px;border-radius:8px}
+
+/* Two-column layout */
+.layout{display:grid;grid-template-columns:280px 1fr;gap:0;margin-top:0;height:calc(100vh - 64px)}
+.sidebar{background:var(--card);padding:16px;border-radius:0;height:100%;overflow:auto}
+.sidebar ul{list-style:none}
+.sidebar li{margin-bottom:8px}
+.sidebar a{display:block;padding:8px;border-radius:6px;color:#0f172a;text-decoration:none}
+.sidebar a.active, .sidebar a:hover{background:var(--bg);font-weight:600}
+
+/* Hero for main page */
+.hero{background:linear-gradient(180deg, rgba(31,111,235,0.06), rgba(14,165,164,0.03));padding:22px;border-radius:10px;margin-bottom:18px;border:1px solid rgba(31,111,235,0.06)}
+.hero h1{font-size:1.6rem;margin-bottom:6px}
+.hero p{color:var(--muted);margin-bottom:12px}
+.hero .cta{display:flex;gap:8px}
+.hero .cta .btn{padding:10px 14px;border-radius:8px}
+
+/* emphasize main page content */
+.main .card > h1{font-size:1.2rem;margin-bottom:12px}
+
+/* Main area */
+.main{min-height:100%;padding:24px;overflow:auto}
+
+/* Forms */
+form .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+label{display:block;font-size:0.9rem;margin-bottom:6px;color:var(--muted)}
+input[type="text"],input[type="tel"],input[type="number"],select,textarea{width:100%;padding:10px;border:1px solid #e6e8eb;border-radius:8px;background:#fff}
+textarea{min-height:110px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+/* Buttons */
+.btn{display:inline-block;padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;text-decoration:none;cursor:pointer}
+.btn.secondary{background:#64748b}
+.btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(31,111,235,0.12)}
+.btn.danger{background:var(--danger)}
+
+/* Tables */
+.table{width:100%;border-collapse:collapse;background:transparent}
+.table th,.table td{padding:10px 12px;text-align:left;border-bottom:1px solid #eef2f6}
+.table thead th{background:transparent;font-weight:600;color:var(--muted)}
+.table tbody tr:hover{background:#fafbff}
+
+/* Utilities */
+.muted{color:var(--muted)}
+.text-right{text-align:right}
+.mb{margin-bottom:12px}
+.flex{display:flex;gap:8px;align-items:center}
+
+/* Responsiveness */
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{height:auto}
+  .navbar{flex-wrap:wrap}
+  form .form-row{grid-template-columns:1fr}
+}
+
+/* Footer */
+.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:0.9rem}
+
+/* Print */
+@media print{
+  body{background:#fff;padding:0}
+  .navbar,.sidebar,.btn{display:none}
+  .container{padding:0;max-width:100%}
+}
+
+/* Small helpers for nota/receipt (refined layout matching the provided model) */
+/* Ensure A4 page size and consistent layout for PDF/PNG generation */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+/* Base note container styled like the physical form */
+.nota{border:6px solid #000;padding:10mm;border-radius:20px;background:#fff;box-sizing:border-box;width:190mm;min-height:270mm;margin:0 auto;font-family: 'Times New Roman', Times, serif;color:#000;font-size:13pt;line-height:1.18}
+.nota-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6mm}
+
+/* GR box at top-left */
+.nota-gr{border:4px solid #000;border-radius:14px;width:78px;height:78px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:38px}
+
+/* Company block centered */
+.nota-company{flex:1;text-align:center;padding-left:8px;padding-right:8px}
+.nota-company h2{margin:0;font-size:24px;letter-spacing:1px}
+.nota-company p{font-size:13px;margin:3px 0}
+
+/* ORÇAMENTO box on the right */
+.nota-box{border:4px solid #000;padding:8px 10px;width:220px;text-align:center;border-radius:10px}
+.nota-box h3{margin:0 0 6px 0;font-size:20px}
+.nota-meta{font-size:12px;font-weight:700}
+
+/* Tomador / destinatário area with labeled rows */
+.nota-client{margin-top:4mm;border-top:4px solid #000;padding-top:6px}
+.nota-client .row{display:flex;gap:6px;margin-bottom:6px}
+.nota-client .row .cell{border:2px solid #000;padding:8px;font-size:13px;border-radius:8px}
+.nota-client .full{flex:1}
+.nota-client .small{width:140px}
+.nota-client .medium{width:200px}
+
+/* Items region: remove internal vertical grid lines and use horizontal separator lines for harmonic look */
+.nota-items{margin-top:6mm;border-left:2px solid #000;border-right:2px solid #000;border-top:2px solid #000;border-bottom:2px solid #000;border-radius:10px;overflow:hidden}
+.nota-items table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+.nota-items thead th{padding:10px 8px;font-size:13px;background:#fff}
+.nota-items thead th:first-child{padding-left:12px}
+.nota-items tbody td{padding:10px 8px;font-size:13px;border-bottom:2px solid #000;vertical-align:middle}
+.nota-items tbody tr.blank td{background:transparent}
+.nota-items tbody tr td:first-child{padding-left:12px}
+.nota-items tbody tr td:last-child{padding-right:12px}
+
+/* row height and spacing */
+.nota-items tbody tr{height:13mm}
+
+/* round the outer table corners */
+.nota-items table thead th:first-child{border-top-left-radius:8px}
+.nota-items table thead th:last-child{border-top-right-radius:8px}
+.nota-items tbody tr:last-child td:first-child{border-bottom-left-radius:8px}
+.nota-items tbody tr:last-child td:last-child{border-bottom-right-radius:8px}
+
+/* Make sure last columns align right */
+.nota-items .num{text-align:center;width:10%}
+.nota-items .desc{width:62%}
+.nota-items .unit{text-align:right;width:14%}
+.nota-items .total{text-align:right;width:14%}
+
+/* Provide many blank rows look */
+.nota-items tbody tr.blank td{background:transparent}
+
+/* Summary and total box on bottom-right */
+.nota-summary{margin-top:10px;display:flex;justify-content:space-between;align-items:center}
+.nota-summary .sem{font-weight:900;padding:12px 18px;border-top:2px solid #000;border-bottom:2px solid #000;border-left:2px solid #000;border-right:none;font-size:13px}
+.nota-summary .total-box{border:2px solid #000;padding:12px 28px;font-weight:900;font-size:20px;border-radius:8px}
+
+/* Footer */
+.nota-footer{margin-top:10px;text-align:center;font-weight:700;font-size:12px}
+
+/* Print-specific adjustments */
+@media print{
+  .container .navbar, .sidebar, .btn { display:none }
+  .container { padding:0 }
+  .nota{margin:0}
+  /* Slightly increase default scale for print clarity */
+  body{font-size:13pt}
+}
+
+
+/* Accessibility focus */
+a:focus,button:focus,input:focus{outline:3px solid rgba(31,111,235,0.12);outline-offset:2px}
+.servicos-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.servicos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.servicos-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Tabela de serviços */
+.servicos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.servicos-table th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid #eef2f6;
+  padding: 10px;
+}
+
+.servicos-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eef2f6;
+  vertical-align: middle;
+}
+
+.servicos-table tbody tr:hover {
+  background: #fafbff;
+}
+
+/* Ações */
+.servicos-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Botões adaptados ao seu tema */
+.btn-view {
+  background: var(--primary);
+}
+
+.btn-download {
+  background: var(--success);
+}
+
+.btn-view,
+.btn-download {
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-view:hover {
+  background: #155ed8;
+}
+
+.btn-download:hover {
+  background: #059669;
+}
+
+/* ID badge */
+.servico-id {
+  font-weight: 700;
+  color: var(--primary);
+}</style>
+<base href="http://localhost/">
+</head>
+<body>
+<div class="card">
+            
+              
+            
+
+            
+  <div class="nota">
+    <div class="nota-header">
+      <div class="nota-gr">GR</div>
+      <div class="nota-company">
+        <h2>GR DIESEL</h2>
+        <p><strong>ELETRO LTDA ME</strong></p>
+        <p>BOMBAS INJETORES, BICOS INJETORES</p>
+        <p>ELÉTRICA EM GERAL, INJEÇÃO A DIESEL</p>
+        <p>FONE: (61) 3686-2702 • WHATSAPP: (61) 9934-0031</p>
+        <p>SHN ÁREA ESPECIAL 22 TAGUATINGA NORTE - BRASILIA/DF</p>
+      </div>
+      <div class="nota-box">
+        <h3>ORÇAMENTO</h3>
+        <div class="nota-meta">
+          <div>DATA DA EMISSÃO:</div>
+          <div style="font-weight:700">2025-12-22</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nota-client">
+      <div class="row">
+        <div class="cell full"><strong>TOMADOR DO SERVIÇO OU DESTINATÁRIO</strong></div>
+        <div class="cell small">TEL.</div>
+      </div>
+      <div class="row">
+        <div class="cell full">Cliente Teste Flow</div>
+        <div class="cell small">0000</div>
+      </div>
+
+      <div class="row">
+        <div class="cell full">ENDEREÇO: </div>
+      </div>
+
+      <div class="row">
+        <div class="cell medium">CIDADE: </div>
+        <div class="cell small">CEP: </div>
+        <div class="cell small">ESTADO: </div>
+      </div>
+
+      <div class="row">
+        <div class="cell medium">CNPJ/CPF: </div>
+        <div class="cell small">INS. EST: </div>
+      </div>
+
+    </div>
+
+    <div class="nota-items">
+    <table width="100%" cellspacing="0">
+      <thead>
+        <tr>
+          <th class="num">QUANT.</th>
+          <th class="desc">DESCRIÇÃO DOS SERVIÇOS</th>
+          <th class="unit">PREÇO UNIT.</th>
+          <th class="total">PREÇO TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        
+        <tr class="first-row">
+          <td class="num">2</td>
+          <td class="desc">Item B</td>
+          <td class="unit">R$ 30.00</td>
+          <td class="total">R$ 60.00</td>
+        </tr>
+        
+
+        
+        
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          
+        
+      </tbody>
+    </table>
+    </div>
+
+    <div class="nota-summary">
+      <div class="sem">SEM VALOR FISCAL</div>
+      <div>
+        <div>Total peças: R$ 60.00</div>
+        <div>Mão de obra: R$ 100.00</div>
+        <div class="total-box">TOTAL: R$ 160.00</div>
+      </div>
+    </div>
+
+    <div class="nota-footer">Documento sem valor fiscal — GR DIESEL ELETRO LTDA ME</div>
+  </div>
+
+          </div>
+</body>
+</html>

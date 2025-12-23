@@ -6,6 +6,12 @@ class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(200), nullable=False)
     telefone = db.Column(db.String(50))
+    endereco = db.Column(db.String(250))
+    cidade = db.Column(db.String(100))
+    cep = db.Column(db.String(30))
+    estado = db.Column(db.String(50))
+    cnpj_cpf = db.Column(db.String(80))
+    inscricao_estadual = db.Column(db.String(80))
     modelo_veiculo = db.Column(db.String(100))
     placa = db.Column(db.String(20))
     pessoa = db.Column(db.String(50))  # PF ou CNPJ

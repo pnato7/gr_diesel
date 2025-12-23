@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="card servicos-card">
+
+    <div class="servicos-header">
+        <h1>Serviços</h1>
+    </div>
+
+    <table class="servicos-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for servico in servicos %}
+            <tr>
+                <td class="servico-id">{{ servico.id }}</td>
+                <td>{{ servico.cliente.nome }}</td>
+                <td>{{ servico.created_at.strftime('%d/%m/%Y') }}</td>
+                <td class="servicos-actions">
+
+                    <a href="{{ url_for('main.servico_view', servico_id=servico.id) }}"
+                       class="btn-view">
+                       Ver
+                    </a>
+
+                    <a href="{{ url_for('main.nota_download', servico_id=servico.id) }}"
+                      class="btn-download">
+                            📥 Baixar Nota
+                        </a>Baixar Nota
+                    </a>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

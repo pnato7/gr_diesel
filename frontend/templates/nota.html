@@ -1,15 +1,97 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <h1>Nota - Serviço #{{ servico.id }}</h1>
-  <p>Cliente: {{ servico.cliente.nome }}</p>
-  <p>Descrição: {{ servico.descricao }}</p>
-  <h3>Peças</h3>
-  <ul>
-    {% for p in servico.pecas %}
-      <li>{{ p.nome }} - {{ p.unidade }} x R$ {{ '%.2f'|format(p.valor_unitario) }} = R$ {{ '%.2f'|format(p.valor_total) }}</li>
-    {% endfor %}
-  </ul>
-  <p>Total peças: R$ {{ '%.2f'|format(servico.nota.total_pecas if servico.nota else 0.0) }}</p>
-  <p>Mão de obra: R$ {{ '%.2f'|format(servico.mao_de_obra) }}</p>
-  <p><strong>Total: R$ {{ '%.2f'|format(servico.nota.total if servico.nota else (servico.mao_de_obra + (servico.pecas|sum(attribute='valor_total')))) }}</strong></p>
+  <div class="nota">
+    <div class="nota-header">
+      <div class="nota-gr">GR</div>
+      <div class="nota-company">
+        <h2>GR DIESEL</h2>
+        <p><strong>ELETRO LTDA ME</strong></p>
+        <p>BOMBAS INJETORES, BICOS INJETORES</p>
+        <p>ELÉTRICA EM GERAL, INJEÇÃO A DIESEL</p>
+        <p>FONE: (61) 3686-2702 • WHATSAPP: (61) 9934-0031</p>
+        <p>SHN ÁREA ESPECIAL 22 TAGUATINGA NORTE - BRASILIA/DF</p>
+      </div>
+      <div class="nota-box">
+        <h3>ORÇAMENTO</h3>
+        <div class="nota-meta">
+          <div>DATA DA EMISSÃO:</div>
+          <div style="font-weight:700">{{ servico.data_emissao.date() if servico.data_emissao else servico.created_at.date() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nota-client">
+      <div class="row">
+        <div class="cell full"><strong>TOMADOR DO SERVIÇO OU DESTINATÁRIO</strong></div>
+        <div class="cell small">TEL.</div>
+      </div>
+      <div class="row">
+        <div class="cell full">{{ servico.cliente.nome or '' }}</div>
+        <div class="cell small">{{ servico.cliente.telefone or '' }}</div>
+      </div>
+
+      <div class="row">
+        <div class="cell full">ENDEREÇO: {{ servico.cliente.endereco or '' }}</div>
+      </div>
+
+      <div class="row">
+        <div class="cell medium">CIDADE: {{ servico.cliente.cidade or '' }}</div>
+        <div class="cell small">CEP: {{ servico.cliente.cep or '' }}</div>
+        <div class="cell small">ESTADO: {{ servico.cliente.estado or '' }}</div>
+      </div>
+
+      <div class="row">
+        <div class="cell medium">CNPJ/CPF: {{ servico.cliente.cnpj_cpf or '' }}</div>
+        <div class="cell small">INS. EST: {{ servico.cliente.inscricao_estadual or '' }}</div>
+      </div>
+
+    </div>
+
+    <div class="nota-items">
+    <table width="100%" cellspacing="0">
+      <thead>
+        <tr>
+          <th class="num">QUANT.</th>
+          <th class="desc">DESCRIÇÃO DOS SERVIÇOS</th>
+          <th class="unit">PREÇO UNIT.</th>
+          <th class="total">PREÇO TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set total_rows = 16 %}
+        {% for p in servico.pecas %}
+        <tr class="first-row">
+          <td class="num">{{ p.unidade }}</td>
+          <td class="desc">{{ p.nome }}</td>
+          <td class="unit">R$ {{ '%.2f'|format(p.valor_unitario) }}</td>
+          <td class="total">R$ {{ '%.2f'|format(p.valor_total) }}</td>
+        </tr>
+        {% endfor %}
+
+        {% set blanks = total_rows - (servico.pecas|length) %}
+        {% if blanks > 0 %}
+          {% for i in range(blanks) %}
+            <tr class="blank">
+              <td class="num">&nbsp;</td>
+              <td class="desc">&nbsp;</td>
+              <td class="unit">&nbsp;</td>
+              <td class="total">&nbsp;</td>
+            </tr>
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+    </div>
+
+    <div class="nota-summary">
+      <div class="sem">SEM VALOR FISCAL</div>
+      <div>
+        <div class="summary-pecas">Total peças: <span class="valor-pecas">R$ {{ '%.2f'|format(servico.nota.total_pecas if servico.nota else 0.0) }}</span></div>
+        <div class="summary-mao">Mão de obra: <span class="valor-mao">R$ {{ '%.2f'|format(servico.mao_de_obra) }}</span></div>
+        <div class="total-box">TOTAL: <span class="valor-total">R$ {{ '%.2f'|format(servico.nota.total if servico.nota else (servico.mao_de_obra + (servico.pecas|sum(attribute='valor_total')))) }}</span></div>
+      </div>
+    </div>
+
+    <div class="nota-footer">Documento sem valor fiscal — GR DIESEL ELETRO LTDA ME</div>
+  </div>
 {% endblock %}

@@ -1,0 +1,5 @@
+css_injected: True
+viewport: 2480x3508
+element_screenshot: True
+element_box: {'x': 880.9375, 'y': 18, 'width': 718.109375, 'height': 1510.421875, 'scrollHeight': 1498}
+out_path: c:\Users\DELL\Downloads\cadastramento\gr_diesel\backend\..\frontend\static\exports\nota_7.png

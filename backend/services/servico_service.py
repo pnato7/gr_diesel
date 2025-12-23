@@ -1,6 +1,9 @@
 from ..models.servico import Servico, Peca
 from ..models.agendamento import NotaServico
 from ..connection import db
+from flask import Blueprint, send_file, jsonify
+from backend.utils.gerar_nota_png import gerar_nota_png
+import os
 
 def get_latest_services(limit=20):
     return Servico.query.order_by(Servico.created_at.desc()).limit(limit).all()

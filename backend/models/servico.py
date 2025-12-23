@@ -11,6 +11,7 @@ class Servico(db.Model):
     teste_bomba = db.Column(db.Boolean, default=False)
     apenas_teste = db.Column(db.Boolean, default=False)
     mao_de_obra = db.Column(db.Float, default=0.0)
+    data_emissao = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     cliente = db.relationship('Cliente', backref=db.backref('servicos', lazy=True))

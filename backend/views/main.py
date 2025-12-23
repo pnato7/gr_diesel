@@ -31,6 +31,42 @@ def cliente_novo():
     return render_template('cliente_form.html')
 
 
+@main_bp.route('/servico/novo', methods=['GET', 'POST'])
+def servico_novo_noid():
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        cliente_choice = request.form.get('cliente_choice')
+        if cliente_choice == 'none':
+            cliente = client_service.get_or_create_anonymous_client()
+            cliente_id = cliente.id
+        elif cliente_choice and cliente_choice.startswith('existing_'):
+            cliente_id = int(cliente_choice.split('_',1)[1])
+        else:
+            cliente_id = None
+
+        pecas_n = request.form.getlist('pecas_nome')
+        pecas_q = request.form.getlist('pecas_qtde')
+        pecas_v = request.form.getlist('pecas_valor')
+        pecas = []
+        for n, q, v in zip(pecas_n, pecas_q, pecas_v):
+            if not n:
+                continue
+            pecas.append({'nome': n, 'unidade': int(q or 1), 'valor_unitario': float(v or 0.0)})
+
+        # se nenhum cliente_id, usar anônimo
+        if not cliente_id:
+            cliente = client_service.get_or_create_anonymous_client()
+            cliente_id = cliente.id
+
+        servico_service.create_service(cliente_id, data, pecas)
+        flash('Serviço registrado com sucesso', 'success')
+        return redirect(url_for('main.index'))
+
+    # GET
+    clientes = client_service.list_clients()
+    return render_template('servico_form.html', cliente=None, clientes=clientes)
+
+
 @main_bp.route('/servico/novo/<int:cliente_id>', methods=['GET', 'POST'])
 def servico_novo(cliente_id):
     cliente = client_service.get_client(cliente_id)
@@ -55,7 +91,33 @@ def servico_novo(cliente_id):
 @main_bp.route('/nota/<int:servico_id>')
 def nota(servico_id):
     servico = servico_service.get_service(servico_id)
+
+    # tentar exibir o PNG gerado (se existir). Se não existir, renderiza o HTML da nota.
+    from pathlib import Path
+    exports_path = Path(current_app.config.get('EXPORTS_PATH') or Path(current_app.static_folder) / 'exports')
+    png_name = f'nota_{servico.id}.png'
+    alt_png_name = f'nota_{servico.id}_playwright.png'
+    png_path = exports_path / png_name
+    alt_png_path = exports_path / alt_png_name
+
+    if png_path.exists() or alt_png_path.exists():
+        png_use = png_name if png_path.exists() else alt_png_name
+        png_url = url_for('static', filename=f'exports/{png_use}')
+        return render_template('nota_view.html', servico=servico, png_url=png_url)
+
     return render_template('nota.html', servico=servico)
+
+
+@main_bp.route('/servicos')
+def servicos():
+    servicos = servico_service.get_latest_services(limit=200)
+    return render_template('servicos.html', servicos=servicos)
+
+
+@main_bp.route('/servico/<int:servico_id>')
+def servico_view(servico_id):
+    servico = servico_service.get_service(servico_id)
+    return render_template('servico_view.html', servico=servico)
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])

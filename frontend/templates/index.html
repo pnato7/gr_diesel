@@ -1,11 +1,12 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <div class="hero">
+  <div class="hero card">
     <h1>Bem-vindo à GR Diesel Eletro</h1>
-    <p>Gerencie clientes, serviços, peças e notas. Use o painel para iniciar um novo serviço ou cadastrar um cliente.</p>
+    <p class="muted">Gerencie clientes, serviços, peças e notas. Use o painel para iniciar um novo serviço ou cadastrar um cliente.</p>
     <div class="cta">
       <a class="btn" href="/cliente/novo">Cadastrar cliente</a>
-      <a class="btn ghost" href="/servico/novo/1">Registrar serviço</a>
+      <a class="btn ghost" href="/servico/novo">Registrar serviço</a>
+      <a class="btn" href="/servicos">Ver serviços</a>
     </div>
   </div>
 
