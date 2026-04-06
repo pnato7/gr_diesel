@@ -1,0 +1,2 @@
+css_injected: True
+out_path: c:\Users\DELL\Downloads\cadastramento\gr_diesel\backend\..\frontend\static\exports\nota_5.png

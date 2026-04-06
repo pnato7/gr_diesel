@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <h1>Novo Cliente</h1>
+  <form method="post" class="card" style="padding:18px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <label>Nome</label>
+        <input name="nome" required class="form-control" placeholder="Nome completo">
+      </div>
+      <div>
+        <label>Telefone</label>
+        <input name="telefone" class="form-control" placeholder="(61) 99999-0000">
+      </div>
+      <div>
+        <label>Endereço</label>
+        <input name="endereco" class="form-control">
+      </div>
+      <div>
+        <label>Cidade</label>
+        <input name="cidade" class="form-control">
+      </div>
+      <div>
+        <label>CEP</label>
+        <input name="cep" class="form-control">
+      </div>
+      <div>
+        <label>Estado</label>
+        <input name="estado" class="form-control">
+      </div>
+      <div>
+        <label>CNPJ/CPF</label>
+        <input name="cnpj_cpf" class="form-control">
+      </div>
+      <div>
+        <label>Inscrição Estadual</label>
+        <input name="inscricao_estadual" class="form-control">
+      </div>
+      <div>
+        <label>Modelo do veículo</label>
+        <input name="modelo_veiculo" class="form-control">
+      </div>
+      <div>
+        <label>Placa</label>
+        <input name="placa" class="form-control">
+      </div>
+      <div>
+        <label>PF ou CNPJ</label>
+        <input name="pessoa" class="form-control">
+      </div>
+      <div>
+        <label>Forma de pagamento</label>
+        <select name="forma_pagamento" class="form-control">
+          <option>Pix</option>
+          <option>Dinheiro</option>
+          <option>Débito</option>
+          <option>Crédito</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+      <a href="/clientes" class="btn secondary">Cancelar</a>
+      <button type="submit" class="btn">Salvar</button>
+    </div>
+  </form>
+{% endblock %}

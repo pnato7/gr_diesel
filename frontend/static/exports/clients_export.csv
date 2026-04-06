@@ -1,0 +1,4 @@
+id,nome,telefone,modelo_veiculo,placa,pessoa,forma_pagamento,created_at
+3,Oficina Parceira LTDA,6199999-0003,-,-,Jurídica,Boleto,2025-10-20T12:18:03.610721
+2,Maria Oliveira,6199999-0002,Ford F-250 2012,DEF-5678,Física,Cartão,2025-10-20T12:18:03.604040
+1,José da Silva,6199999-0001,VW Kombi 2005,ABC-1234,Física,À vista,2025-10-20T12:18:03.596555

@@ -1,0 +1,350 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1>Relatório de Entradas</h1>
+        <p class="muted">Acompanhe o faturamento e receitas do período</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <a href="/export/clients" class="btn"><i class="fas fa-download"></i> Exportar</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card">
+    <h3>Filtros de Período</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <button type="button" class="btn-period" data-period="mes" onclick="filterPeriod('mes')">
+        <i class="fas fa-calendar"></i> Este Mês
+      </button>
+      <button type="button" class="btn-period" data-period="trimestre" onclick="filterPeriod('trimestre')">
+        <i class="fas fa-calendar"></i> Trimestre
+      </button>
+      <button type="button" class="btn-period" data-period="semestre" onclick="filterPeriod('semestre')">
+        <i class="fas fa-calendar"></i> Semestre
+      </button>
+      <button type="button" class="btn-period" data-period="ano" onclick="filterPeriod('ano')">
+        <i class="fas fa-calendar"></i> Este Ano
+      </button>
+      <button type="button" class="btn-period" data-period="personalizado" onclick="toggleCustomRange()">
+        <i class="fas fa-calendar-alt"></i> Personalizado
+      </button>
+    </div>
+    
+    <div id="custom-range" style="display:none;margin-top:16px;padding:16px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        <div>
+          <label>Data Inicial</label>
+          <input type="date" id="date-from" class="form-control">
+        </div>
+        <div>
+          <label>Data Final</label>
+          <input type="date" id="date-to" class="form-control">
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button type="button" class="btn" onclick="applyCustomRange()"><i class="fas fa-filter"></i> Aplicar Filtro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="cards-grid">
+    <div class="stat-card primary">
+      <div class="label">Faturamento Total</div>
+      <div class="value">R$ <span id="total-faturamento">0.00</span></div>
+      <div class="change">📈 <span id="change-faturamento">0%</span></div>
+    </div>
+    
+    <div class="stat-card success">
+      <div class="label">Número de Serviços</div>
+      <div class="value"><span id="total-servicos">0</span></div>
+      <div class="change">✓ <span id="change-servicos">0</span> este período</div>
+    </div>
+    
+    <div class="stat-card warning">
+      <div class="label">Ticket Médio</div>
+      <div class="value">R$ <span id="ticket-medio">0.00</span></div>
+      <div class="change">por serviço</div>
+    </div>
+    
+    <div class="stat-card danger">
+      <div class="label">Maior Serviço</div>
+      <div class="value">R$ <span id="maior-servico">0.00</span></div>
+      <div class="change">valor máximo</div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:16px;margin-bottom:24px">
+    <div class="card">
+      <h3>Faturamento por Mês</h3>
+      <canvas id="chart-monthly" height="80"></canvas>
+    </div>
+    
+    <div class="card">
+      <h3>Distribuição de Serviços</h3>
+      <canvas id="chart-pie" height="80"></canvas>
+    </div>
+  </div>
+
+  <!-- Detailed Table -->
+  <div class="card">
+    <h3>Detalhamento das Entradas</h3>
+    
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Descrição Serviço</th>
+            <th>Valor Peças</th>
+            <th>Mão de Obra</th>
+            <th>Total</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          {% if notas %}
+            {% for n in notas %}
+            <tr>
+              <td>#{{ n.id }}</td>
+              <td>{{ n.created_at.strftime('%d/%m/%Y') }}</td>
+              <td>{{ n.servico.cliente.nome if n.servico.cliente else 'N/A' }}</td>
+              <td>{{ n.servico.descricao[:50] }}</td>
+              <td class="text-right">R$ {{ '%.2f'|format(n.total_pecas) }}</td>
+              <td class="text-right">R$ {{ '%.2f'|format(n.servico.mao_de_obra or 0) }}</td>
+              <td class="text-right" style="font-weight:700;color:var(--success)">R$ {{ '%.2f'|format(n.total) }}</td>
+              <td>
+                <a href="{{ url_for('main.servico_view', servico_id=n.servico.id) }}" class="btn-view">Ver</a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="8" class="text-center" style="padding:40px;color:var(--muted)">
+                <i class="fas fa-inbox" style="font-size:48px;margin-bottom:12px;display:block;opacity:0.3"></i>
+                Nenhuma entrada registrada neste período
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+  <script>
+    // Data from server - Build simple data structure for charts
+    const notas = [
+      {% for n in notas %}
+      {
+        id: {{ n.id }},
+        total: {{ n.total|default(0) }},
+        total_pecas: {{ n.total_pecas|default(0) }},
+        created_at: '{{ n.created_at.strftime('%Y-%m-%d') }}',
+        servico: {
+          id: {{ n.servico.id }},
+          descricao: '{{ n.servico.descricao[:50]|replace("'", "\\'") }}',
+          cliente: {
+            nome: '{{ n.servico.cliente.nome|replace("'", "\\'") }}'
+          }
+        }
+      }{{ ',' if not loop.last else '' }}
+      {% endfor %}
+    ];
+    
+    // Format data for charts
+    function formatData() {
+      let totalFaturamento = 0;
+      let totalServicos = 0;
+      let porMes = {};
+      let porCliente = {};
+      let maiorServico = 0;
+
+      notas.forEach(nota => {
+        const valor = parseFloat(nota.total) || 0;
+        const data = nota.created_at;
+        const mes = data.substring(0, 7); // YYYY-MM
+        const cliente = nota.servico.cliente.nome;
+
+        totalFaturamento += valor;
+        totalServicos += 1;
+        maiorServico = Math.max(maiorServico, valor);
+
+        // Group by month
+        porMes[mes] = (porMes[mes] || 0) + valor;
+
+        // Group by client
+        porCliente[cliente] = (porCliente[cliente] || 0) + 1;
+      });
+
+      return {
+        totalFaturamento,
+        totalServicos,
+        porMes,
+        porCliente,
+        maiorServico,
+        ticketMedio: totalServicos > 0 ? totalFaturamento / totalServicos : 0
+      };
+    }
+
+    const dados = formatData();
+
+    // Update stat cards
+    document.getElementById('total-faturamento').textContent = dados.totalFaturamento.toFixed(2);
+    document.getElementById('total-servicos').textContent = dados.totalServicos;
+    document.getElementById('ticket-medio').textContent = dados.ticketMedio.toFixed(2);
+    document.getElementById('maior-servico').textContent = dados.maiorServico.toFixed(2);
+    document.getElementById('change-servicos').textContent = dados.totalServicos + ' serviços';
+
+    // Chart 1: Monthly Revenue
+    const ctxMonthly = document.getElementById('chart-monthly').getContext('2d');
+    const meses = Object.keys(dados.porMes).sort();
+    const valores = meses.map(m => dados.porMes[m]);
+
+    new Chart(ctxMonthly, {
+      type: 'bar',
+      data: {
+        labels: meses.map(m => {
+          const [ano, mes] = m.split('-');
+          return ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][parseInt(mes) - 1] + '/' + ano.substring(2);
+        }),
+        datasets: [{
+          label: 'Faturamento (R$)',
+          data: valores,
+          backgroundColor: '#0284c7',
+          borderRadius: 8,
+          borderSkipped: false,
+          fill: true,
+          tension: 0.4
+        }, {
+          label: 'Tendência',
+          data: valores,
+          borderColor: '#f59e0b',
+          borderWidth: 2,
+          fill: false,
+          type: 'line',
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#f59e0b'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: true, position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: (context) => 'R$ ' + context.parsed.y.toFixed(2)
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (v) => 'R$ ' + v.toFixed(0)
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 2: Services by Client
+    const ctxPie = document.getElementById('chart-pie').getContext('2d');
+    const clientes = Object.keys(dados.porCliente);
+    const servicos = clientes.map(c => dados.porCliente[c]);
+    const cores = ['#0284c7', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+
+    new Chart(ctxPie, {
+      type: 'doughnut',
+      data: {
+        labels: clientes,
+        datasets: [{
+          data: servicos,
+          backgroundColor: cores.slice(0, clientes.length),
+          borderColor: '#fff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: 'right' },
+          tooltip: {
+            callbacks: {
+              label: (context) => context.label + ': ' + context.parsed + ' serviços'
+            }
+          }
+        }
+      }
+    });
+
+    // Filter functions
+    function filterPeriod(period) {
+      // Update button state
+      document.querySelectorAll('.btn-period').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-period="${period}"]`).classList.add('active');
+
+      // Hide custom range
+      document.getElementById('custom-range').style.display = 'none';
+
+      console.log('Filter by period:', period);
+      // TODO: Implement server-side filtering
+    }
+
+    function toggleCustomRange() {
+      const el = document.getElementById('custom-range');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function applyCustomRange() {
+      const from = document.getElementById('date-from').value;
+      const to = document.getElementById('date-to').value;
+      console.log('Custom range:', from, 'to', to);
+      // TODO: Implement server-side filtering
+    }
+
+    // Set current month as active
+    document.querySelector('[data-period="mes"]').classList.add('active');
+  </script>
+
+  <style>
+    .btn-period {
+      padding: 10px 16px;
+      border: 2px solid #d5dce0;
+      border-radius: 8px;
+      background: white;
+      color: #374151;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .btn-period:hover {
+      border-color: var(--primary);
+      background: #f0f6ff;
+    }
+
+    .btn-period.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+  </style>
+
+{% endblock %}

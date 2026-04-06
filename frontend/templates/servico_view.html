@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <h1>Serviço #{{ servico.id }}</h1>
+  <p><strong>Cliente:</strong> {{ servico.cliente.nome }}</p>
+  <p><strong>Descrição:</strong> {{ servico.descricao }}</p>
+  <p><strong>Data de emissão:</strong> {{ servico.data_emissao.date() if servico.data_emissao else servico.created_at.date() }}</p>
+  <p><strong>Mão de obra:</strong> R$ {{ '%.2f'|format(servico.mao_de_obra) }}</p>
+
+  <h3>Itens</h3>
+  <table class="table">
+    <thead><tr><th>Quant.</th><th>Descrição</th><th>Preço unit.</th><th>Preço total</th></tr></thead>
+    <tbody>
+      {% for p in servico.pecas %}
+      <tr>
+        <td>{{ p.unidade }}</td>
+        <td>{{ p.nome }}</td>
+        <td>R$ {{ '%.2f'|format(p.valor_unitario) }}</td>
+        <td>R$ {{ '%.2f'|format(p.valor_total) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+    <a class="btn" href="/nota/{{ servico.id }}" target="_blank">Ver nota</a>
+    <a class="btn secondary" href="/nota/{{ servico.id }}/download">Baixar nota</a>
+  </div>
+{% endblock %}

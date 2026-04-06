@@ -1,0 +1,132 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <!-- Hero Section -->
+  <div class="hero card" style="border:none;background:linear-gradient(135deg, var(--primary) 0%, #ff5722 100%);color:white;padding:40px">
+    <h1 style="color:white;margin-bottom:8px">Bem-vindo à GR Diesel Eletro</h1>
+    <p style="color:rgba(255,255,255,0.9);font-size:16px">Gerencie clientes, serviços, peças e orçamentos com eficiência</p>
+    <div class="cta" style="margin-top:24px">
+      <a class="btn" href="/cliente/novo" style="background:white;color:var(--primary)"><i class="fas fa-user-plus"></i> Novo Cliente</a>
+      <a class="btn secondary" href="/servico/novo"><i class="fas fa-plus"></i> Novo Serviço</a>
+      <a class="btn ghost" href="/entradas" style="border-color:white;color:white"><i class="fas fa-chart-line"></i> Ver Relatórios</a>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="cards-grid">
+    <div class="stat-card primary">
+      <div class="label">Serviços Este Mês</div>
+      <div class="value">{{ servicos|length }}</div>
+      <div class="change">últimos 30 dias</div>
+    </div>
+    
+    <div class="stat-card success">
+      <div class="label">Total de Clientes</div>
+      <div class="value">{{ servicos|map(attribute='cliente')|unique|list|length }}</div>
+      <div class="change">clientes ativos</div>
+    </div>
+    
+    <div class="stat-card warning">
+      <div class="label">Faturamento Estimado</div>
+      <div class="value">R$ {% set total = servicos|map(attribute='mao_de_obra')|map('default', 0)|sum %}{{ '%.2f'|format(total) }}</div>
+      <div class="change">mão de obra</div>
+    </div>
+    
+    <div class="stat-card danger">
+      <div class="label">Últimos 7 Dias</div>
+      <div class="value">{{ servicos[:7]|length }}</div>
+      <div class="change">serviços criados</div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
+    <!-- Recent Services -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="margin:0">Serviços Recentes</h2>
+        <a href="/servicos" class="btn btn-small ghost">Ver todos</a>
+      </div>
+
+      {% if servicos %}
+        <div style="overflow-x:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:50px">ID</th>
+                <th>Cliente</th>
+                <th>Descrição</th>
+                <th style="width:100px">Data</th>
+                <th style="width:80px">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in servicos[:10] %}
+              <tr>
+                <td><strong>#{{ s.id }}</strong></td>
+                <td>{{ s.cliente.nome if s.cliente else '-' }}</td>
+                <td>
+                  <small style="color:var(--muted)">{{ s.descricao[:45] or '-' }}{% if s.descricao and s.descricao|length > 45 %}...{% endif %}</small>
+                </td>
+                <td><small>{{ s.created_at.strftime('%d/%m/%y') }}</small></td>
+                <td>
+                  <a href="{{ url_for('main.servico_view', servico_id=s.id) }}" class="btn-view">Ver</a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">
+                  Nenhum serviço registrado. <a href="/servico/novo">Criar primeiro serviço</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <aside>
+      <!-- Recent Clients -->
+      <div class="card">
+        <h3>Clientes Recentes</h3>
+        <ul style="list-style:none;padding:0">
+          {% set recent_clients = servicos|map(attribute='cliente')|unique|list %}
+          {% for c in recent_clients[:5] %}
+            <li style="padding:12px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-weight:600;color:#1f2937">{{ c.nome }}</div>
+                <div style="font-size:12px;color:var(--muted)">{{ c.telefone or 'N/A' }}</div>
+              </div>
+              <a href="/clientes" class="btn-small ghost">✓</a>
+            </li>
+          {% else %}
+            <li style="padding:20px;text-align:center;color:var(--muted)">
+              Nenhum cliente cadastrado
+            </li>
+          {% endfor %}
+        </ul>
+        <a href="/clientes" class="btn" style="width:100%;text-align:center;margin-top:12px">
+          <i class="fas fa-users"></i> Ver Todos
+        </a>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card" style="background:linear-gradient(135deg, var(--primary) 0%, #ff5722 100%);color:white;border:none">
+        <h3 style="color:white;margin:0 0 16px">Ações Rápidas</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="/cliente/novo" style="background:rgba(255,255,255,0.2);color:white;padding:10px;border-radius:6px;text-decoration:none;text-align:center;font-size:13px;transition:all 0.3s">
+            + Novo Cliente
+          </a>
+          <a href="/servico/novo" style="background:rgba(255,255,255,0.2);color:white;padding:10px;border-radius:6px;text-decoration:none;text-align:center;font-size:13px;transition:all 0.3s">
+            + Novo Serviço
+          </a>
+          <a href="/entradas" style="background:rgba(255,255,255,0.2);color:white;padding:10px;border-radius:6px;text-decoration:none;text-align:center;font-size:13px;transition:all 0.3s">
+            📊 Relatórios
+          </a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+{% endblock %}

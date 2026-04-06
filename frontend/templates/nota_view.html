@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container" style="padding: 24px; text-align: center;">
+  <h3 style="margin-bottom: 8px;">Visualizar Nota #{{ servico.id }}</h3>
+  <div style="margin-bottom:10px;">
+    <form method="post" action="{{ url_for('main.nota_generate', servico_id=servico.id) }}" style="display:inline;margin-right:8px;">
+      <button class="btn btn-warning" type="submit">Gerar/Atualizar nota</button>
+    </form>
+    <a class="btn btn-primary" href="{{ url_for('main.nota_download', servico_id=servico.id) }}">Baixar nota (PNG)</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.nota', servico_id=servico.id) }}">Ver versão HTML</a>
+  </div>
+  <div style="background:#f8f9fa; padding:12px; display:inline-block; border-radius:6px; border:1px solid #ddd;">
+    <a href="{{ png_url }}" target="_blank" rel="noopener">
+      <img src="{{ png_url }}" alt="Nota {{ servico.id }}" style="max-width:100%; height:auto; display:block; box-shadow:0 4px 12px rgba(0,0,0,0.08);" />
+    </a>
+  </div>
+  <p style="margin-top:12px; color:#666; font-size:0.9rem;">Se a imagem estiver pequena, use o botão "Baixar" e visualize com um visualizador de imagens no modo de impressão para melhor qualidade.</p>
+</div>
+{% endblock %}

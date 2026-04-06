@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>GR Diesel Eletro LTDA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <header class="navbar">
+        <div class="navbar-brand">
+          <button class="menu-toggle" id="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div class="brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" onerror="this.style.display='none'">
+            <div>GR Diesel Eletro LTDA</div>
+          </div>
+        </div>
+        <nav class="navbar-nav">
+          <a href="/" class="{% if request.path == '/' %}active{% endif %}"><i class="fas fa-home"></i> Início</a>
+          <a href="/clientes" class="{% if request.path.startswith('/clientes') %}active{% endif %}"><i class="fas fa-users"></i> Clientes</a>
+          <a href="/servicos" class="{% if request.path.startswith('/servicos') %}active{% endif %}"><i class="fas fa-tools"></i> Serviços</a>
+          <a href="/entradas" class="{% if request.path == '/entradas' %}active{% endif %}"><i class="fas fa-chart-line"></i> Entradas</a>
+          <a href="/login" class="{% if request.path == '/login' %}active{% endif %}"><i class="fas fa-sign-in-alt"></i> Login</a>
+        </nav>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="close-btn" id="close-btn">✕</button>
+          </div>
+          <ul class="sidebar-menu">
+            <li><a href="/" class="menu-link {% if request.path == '/' %}active{% endif %}"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+            <li class="menu-section">Clientes</li>
+            <li><a href="/clientes" class="menu-link {% if request.path.startswith('/clientes') %}active{% endif %}"><i class="fas fa-list"></i> Listar Clientes</a></li>
+            <li><a href="/cliente/novo" class="menu-link {% if request.path == '/cliente/novo' %}active{% endif %}"><i class="fas fa-user-plus"></i> Novo Cliente</a></li>
+            <li class="menu-section">Serviços</li>
+            <li><a href="/servico/novo" class="menu-link {% if request.path.startswith('/servico') %}active{% endif %}"><i class="fas fa-plus-circle"></i> Registrar Serviço</a></li>
+            <li><a href="/servicos" class="menu-link {% if request.path.startswith('/servicos') %}active{% endif %}"><i class="fas fa-toolbox"></i> Ver Serviços</a></li>
+            <li class="menu-section">Relatórios</li>
+            <li><a href="/entradas" class="menu-link {% if request.path == '/entradas' %}active{% endif %}"><i class="fas fa-file-invoice-dollar"></i> Entradas</a></li>
+            <li><a href="/export/clients" class="menu-link"><i class="fas fa-download"></i> Exportar Clientes</a></li>
+          </ul>
+        </aside>
+
+        <main class="main">
+          <div class="content-wrapper">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="alerts-container">
+                  {% for category, message in messages %}
+                    <div class="alert alert-{{ category or 'info' }}">
+                      <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+          </div>
+        </main>
+      </div>
+
+      <footer class="footer">
+        <p>© {{ current_year or "2025" }} GR Diesel Eletro LTDA — Todos os direitos reservados</p>
+        <small>Desenvolvido por Renato Nunes Veloso</small>
+      </footer>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <script>
+      // Menu toggle functionality
+      const menuToggle = document.getElementById('menu-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const closeBtn = document.getElementById('close-btn');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+      function toggleMenu() {
+        sidebar.classList.toggle('active');
+        sidebarOverlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+      }
+
+      menuToggle.addEventListener('click', toggleMenu);
+      closeBtn.addEventListener('click', toggleMenu);
+      sidebarOverlay.addEventListener('click', toggleMenu);
+
+      // Close menu on link click
+      document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 768) {
+            toggleMenu();
+          }
+        });
+      });
+    </script>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

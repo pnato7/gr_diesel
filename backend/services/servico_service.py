@@ -1,0 +1,38 @@
+from ..models.servico import Servico, Peca
+from ..models.agendamento import NotaServico
+from ..connection import db
+from flask import Blueprint, send_file, jsonify
+from backend.utils.gerar_nota_png import gerar_nota_png
+import os
+
+def get_latest_services(limit=20):
+    return Servico.query.order_by(Servico.created_at.desc()).limit(limit).all()
+
+def create_service(cliente_id, data: dict, pecas: list):
+    servico = Servico(
+        cliente_id=cliente_id,
+        descricao=data.get('descricao'),
+        teste_bico=bool(data.get('teste_bico')),
+        teste_bomba=bool(data.get('teste_bomba')),
+        apenas_teste=bool(data.get('apenas_teste')),
+        mao_de_obra=float(data.get('mao_de_obra') or 0.0)
+    )
+    db.session.add(servico)
+    db.session.commit()
+
+    total_pecas = 0.0
+    for p in pecas:
+        item = Peca(nome=p['nome'], unidade=p['unidade'], valor_unitario=p['valor_unitario'], servico_id=servico.id)
+        db.session.add(item)
+        total_pecas += item.valor_total
+
+    nota = NotaServico(servico_id=servico.id, total_pecas=total_pecas, total=total_pecas + servico.mao_de_obra)
+    db.session.add(nota)
+    db.session.commit()
+    return servico
+
+def get_service(servico_id):
+    return Servico.query.get_or_404(servico_id)
+
+def list_notas():
+    return NotaServico.query.order_by(NotaServico.created_at.desc()).all()

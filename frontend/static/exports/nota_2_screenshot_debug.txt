@@ -1,0 +1,5 @@
+css_injected: True
+viewport: 2480x3508
+element_screenshot: True
+element_box: {'x': 880.9375, 'y': 0, 'width': 718.109375, 'height': 1424.65625, 'scrollHeight': 1413}
+out_path: c:\Users\ranav\Downloads\css\backend\..\frontend\static\exports\nota_2.png
