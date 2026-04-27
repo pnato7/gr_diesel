@@ -54,7 +54,8 @@
   <div class="cards-grid">
     <div class="stat-card primary">
       <div class="label">Faturamento Total</div>
-      <div class="value">R$ <span id="total-faturamento">0.00</span></div>
+      <div class="value"><span id="total-faturamento">R$ 0,00</span></div>
+
       <div class="change">📈 <span id="change-faturamento">0%</span></div>
     </div>
     
@@ -66,13 +67,13 @@
     
     <div class="stat-card warning">
       <div class="label">Ticket Médio</div>
-      <div class="value">R$ <span id="ticket-medio">0.00</span></div>
+      <div class="value"><span id="ticket-medio">R$ 0,00</span></div>
       <div class="change">por serviço</div>
     </div>
     
     <div class="stat-card danger">
       <div class="label">Maior Serviço</div>
-      <div class="value">R$ <span id="maior-servico">0.00</span></div>
+      <div class="value"><span id="maior-servico">R$ 0,00</span></div>
       <div class="change">valor máximo</div>
     </div>
   </div>
@@ -113,14 +114,15 @@
             {% for n in notas %}
             <tr>
               <td>#{{ n.id }}</td>
-              <td>{{ n.created_at.strftime('%d/%m/%Y') }}</td>
+              <td>{{ n.created_at|data }}</td>
               <td>{{ n.servico.cliente.nome if n.servico.cliente else 'N/A' }}</td>
               <td>{{ n.servico.descricao[:50] }}</td>
-              <td class="text-right">R$ {{ '%.2f'|format(n.total_pecas) }}</td>
-              <td class="text-right">R$ {{ '%.2f'|format(n.servico.mao_de_obra or 0) }}</td>
-              <td class="text-right" style="font-weight:700;color:var(--success)">R$ {{ '%.2f'|format(n.total) }}</td>
-              <td>
-                <a href="{{ url_for('main.servico_view', servico_id=n.servico.id) }}" class="btn-view">Ver</a>
+              <td class="text-right">{{ n.total_pecas|moeda }}</td>
+              <td class="text-right">{{ n.servico.mao_de_obra|moeda }}</td>
+              <td class="text-right" style="font-weight:700;color:var(--success)">
+                {{ n.total|moeda }}
+              </td>
+                 <a href="{{ url_for('main.servico_view', servico_id=n.servico.id) }}" class="btn-view">Ver</a>
               </td>
             </tr>
             {% endfor %}
@@ -141,8 +143,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
   <script>
-    // Data from server - Build simple data structure for charts
-    const notas = [
+    // Data from server
+    const notasOriginais = [
       {% for n in notas %}
       {
         id: {{ n.id }},
@@ -154,14 +156,19 @@
           descricao: '{{ n.servico.descricao[:50]|replace("'", "\\'") }}',
           cliente: {
             nome: '{{ n.servico.cliente.nome|replace("'", "\\'") }}'
-          }
+          },
+          mao_de_obra: {{ n.servico.mao_de_obra|default(0) }}
         }
       }{{ ',' if not loop.last else '' }}
       {% endfor %}
     ];
-    
+
+    let notasFiltradas = [...notasOriginais];
+    let chartMonthly = null;
+    let chartPie = null;
+
     // Format data for charts
-    function formatData() {
+    function formatData(notas = notasFiltradas) {
       let totalFaturamento = 0;
       let totalServicos = 0;
       let porMes = {};
@@ -195,101 +202,101 @@
       };
     }
 
-    const dados = formatData();
+    function formatarMoeda(valor) {
+      return Number(valor || 0).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+    }
 
-    // Update stat cards
-    document.getElementById('total-faturamento').textContent = dados.totalFaturamento.toFixed(2);
-    document.getElementById('total-servicos').textContent = dados.totalServicos;
-    document.getElementById('ticket-medio').textContent = dados.ticketMedio.toFixed(2);
-    document.getElementById('maior-servico').textContent = dados.maiorServico.toFixed(2);
-    document.getElementById('change-servicos').textContent = dados.totalServicos + ' serviços';
+    function atualizarGraficos() {
+      const dados = formatData(notasFiltradas);
 
-    // Chart 1: Monthly Revenue
-    const ctxMonthly = document.getElementById('chart-monthly').getContext('2d');
-    const meses = Object.keys(dados.porMes).sort();
-    const valores = meses.map(m => dados.porMes[m]);
+      // Update stat cards
+      document.getElementById('total-faturamento').textContent = formatarMoeda(dados.totalFaturamento);
+      document.getElementById('total-servicos').textContent = dados.totalServicos;
+      document.getElementById('ticket-medio').textContent = formatarMoeda(dados.ticketMedio);
+      document.getElementById('maior-servico').textContent = formatarMoeda(dados.maiorServico);
+      document.getElementById('change-servicos').textContent = dados.totalServicos + ' serviços';
 
-    new Chart(ctxMonthly, {
-      type: 'bar',
-      data: {
-        labels: meses.map(m => {
-          const [ano, mes] = m.split('-');
-          return ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][parseInt(mes) - 1] + '/' + ano.substring(2);
-        }),
-        datasets: [{
-          label: 'Faturamento (R$)',
-          data: valores,
-          backgroundColor: '#0284c7',
-          borderRadius: 8,
-          borderSkipped: false,
-          fill: true,
-          tension: 0.4
-        }, {
-          label: 'Tendência',
-          data: valores,
-          borderColor: '#f59e0b',
-          borderWidth: 2,
-          fill: false,
-          type: 'line',
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#f59e0b'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { display: true, position: 'top' },
-          tooltip: {
-            callbacks: {
-              label: (context) => 'R$ ' + context.parsed.y.toFixed(2)
-            }
-          }
+      // Destroy existing charts
+      if (chartMonthly) chartMonthly.destroy();
+      if (chartPie) chartPie.destroy();
+
+      // Chart 1: Monthly Revenue
+      const ctxMonthly = document.getElementById('chart-monthly').getContext('2d');
+      const meses = Object.keys(dados.porMes).sort();
+      const valores = meses.map(m => dados.porMes[m]);
+
+      chartMonthly = new Chart(ctxMonthly, {
+        type: 'bar',
+        data: {
+          labels: meses.map(m => {
+            const [ano, mes] = m.split('-');
+            return ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'][parseInt(mes) - 1] + '/' + ano.substring(2);
+          }),
+          datasets: [{
+            label: 'Faturamento (R$)',
+            data: valores,
+            backgroundColor: '#0284c7',
+            borderRadius: 8,
+            borderSkipped: false
+          }]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: (v) => 'R$ ' + v.toFixed(0)
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: true, position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: (context) => formatarMoeda(context.parsed.y)
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: (v) => formatarMoeda(v)
+              }
             }
           }
         }
-      }
-    });
+      });
 
-    // Chart 2: Services by Client
-    const ctxPie = document.getElementById('chart-pie').getContext('2d');
-    const clientes = Object.keys(dados.porCliente);
-    const servicos = clientes.map(c => dados.porCliente[c]);
-    const cores = ['#0284c7', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+      // Chart 2: Services by Client
+      const ctxPie = document.getElementById('chart-pie').getContext('2d');
+      const clientes = Object.keys(dados.porCliente);
+      const servicos = clientes.map(c => dados.porCliente[c]);
+      const cores = ['#0284c7', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
-    new Chart(ctxPie, {
-      type: 'doughnut',
-      data: {
-        labels: clientes,
-        datasets: [{
-          data: servicos,
-          backgroundColor: cores.slice(0, clientes.length),
-          borderColor: '#fff',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { position: 'right' },
-          tooltip: {
-            callbacks: {
-              label: (context) => context.label + ': ' + context.parsed + ' serviços'
+      chartPie = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: clientes,
+          datasets: [{
+            data: servicos,
+            backgroundColor: cores.slice(0, clientes.length),
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { position: 'right' },
+            tooltip: {
+              callbacks: {
+                label: (context) => context.label + ': ' + context.parsed + ' serviços'
+              }
             }
           }
         }
-      }
-    });
+      });
+    }
 
-    // Filter functions
     function filterPeriod(period) {
       // Update button state
       document.querySelectorAll('.btn-period').forEach(btn => btn.classList.remove('active'));
@@ -298,8 +305,35 @@
       // Hide custom range
       document.getElementById('custom-range').style.display = 'none';
 
-      console.log('Filter by period:', period);
-      // TODO: Implement server-side filtering
+      const hoje = new Date();
+      let dataInicio = new Date();
+
+      switch(period) {
+        case 'mes':
+          dataInicio.setDate(1);
+          break;
+        case 'trimestre':
+          const trimestre = Math.floor(hoje.getMonth() / 3);
+          dataInicio.setMonth(trimestre * 3);
+          dataInicio.setDate(1);
+          break;
+        case 'semestre':
+          if (hoje.getMonth() < 6) {
+            dataInicio.setMonth(0);
+          } else {
+            dataInicio.setMonth(6);
+          }
+          dataInicio.setDate(1);
+          break;
+        case 'ano':
+          dataInicio.setMonth(0);
+          dataInicio.setDate(1);
+          break;
+      }
+
+      const dataInicioStr = dataInicio.toISOString().split('T')[0];
+      notasFiltradas = notasOriginais.filter(nota => nota.created_at >= dataInicioStr);
+      atualizarGraficos();
     }
 
     function toggleCustomRange() {
@@ -310,12 +344,24 @@
     function applyCustomRange() {
       const from = document.getElementById('date-from').value;
       const to = document.getElementById('date-to').value;
-      console.log('Custom range:', from, 'to', to);
-      // TODO: Implement server-side filtering
+
+      if (!from || !to) {
+        alert('Por favor, preencha ambas as datas');
+        return;
+      }
+
+      notasFiltradas = notasOriginais.filter(nota => nota.created_at >= from && nota.created_at <= to);
+      atualizarGraficos();
+
+      // Update button state
+      document.querySelectorAll('.btn-period').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('[data-period="personalizado"]').classList.add('active');
     }
 
-    // Set current month as active
+    // Initialize charts
+    atualizarGraficos();
     document.querySelector('[data-period="mes"]').classList.add('active');
+    filterPeriod('mes');
   </script>
 
   <style>

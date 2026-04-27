@@ -12,6 +12,8 @@ from flask import (
 )
 from .db import db
 from backend.models import Cliente, Servico, Peca, NotaServico, User
+from backend.models import Cliente, Servico, Peca, NotaServico
+from backend.connection import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import send_file
 import os
@@ -83,11 +85,18 @@ def cliente_editar(cliente_id):
 @main_bp.route('/cliente/<int:cliente_id>/excluir', methods=['POST'])
 def cliente_excluir(cliente_id):
     cliente = Cliente.query.get_or_404(cliente_id)
+
+    # apaga primeiro as peças e notas dos serviços desse cliente
+    for servico in cliente.servicos:
+        Peca.query.filter_by(servico_id=servico.id).delete()
+        NotaServico.query.filter_by(servico_id=servico.id).delete()
+        db.session.delete(servico)
+
     db.session.delete(cliente)
     db.session.commit()
-    flash('Cliente excluído com sucesso', 'success')
-    return redirect(url_for('main.clientes'))
 
+    flash("Cliente excluído com sucesso!", "success")
+    return redirect(url_for('main.clientes'))
 
 @main_bp.route('/servico/novo', methods=['GET'])
 def servico_novo_root_get():
@@ -205,22 +214,24 @@ def servico_novo(cliente_id):
 
 @main_bp.route('/nota/<int:servico_id>')
 def nota(servico_id):
-    """Exibe a nota: se houver PNG gerado, exibe a imagem; caso contrário, renderiza a versão HTML."""
     servico = Servico.query.get_or_404(servico_id)
-    exports_path = current_app.config.get('EXPORTS_PATH')
-    png_name = f'nota_{servico.id}.png'
-    alt_png_name = f'nota_{servico.id}_playwright.png'
-    png_path = os.path.join(exports_path, png_name)
-    alt_png_path = os.path.join(exports_path, alt_png_name)
 
-    if os.path.exists(png_path) or os.path.exists(alt_png_path):
-        png_use = png_name if os.path.exists(png_path) else alt_png_name
-        png_url = url_for('static', filename=f'exports/{png_use}')
-        return render_template('nota_view.html', servico=servico, png_url=png_url)
+    nota = NotaServico.query.filter_by(servico_id=servico.id).first()
 
-    # fallback para a versão HTML se não houver PNG
-    return render_template('nota.html', servico=servico)
+    if not nota:
+        total_pecas = sum((peca.valor_total or 0) for peca in servico.pecas)
+        total = total_pecas + (servico.mao_de_obra or 0)
 
+        nota = NotaServico(
+            servico_id=servico.id,
+            total_pecas=total_pecas,
+            total=total
+        )
+
+        db.session.add(nota)
+        db.session.commit()
+
+    return render_template('nota.html', servico=servico, nota=nota)
 
 @main_bp.route('/nota/<int:servico_id>/download')
 def nota_download(servico_id):

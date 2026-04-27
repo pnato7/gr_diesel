@@ -22,7 +22,7 @@ def create_app():
         static_folder=frontend_static
     )
     
-
+    
     # =========================
     # CONFIGURAÇÕES
     # =========================
@@ -150,9 +150,46 @@ def create_app():
             return Response('Erro ao ler o arquivo de log', status=500, mimetype='text/plain')
         return Response(content, mimetype='text/plain')
 
+    def formatar_moeda(valor):
+        try:
+            valor = float(valor or 0)
+            return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        except Exception:
+            return "R$ 0,00"
+
+    def formatar_data(data):
+        if not data:
+            return "-"
+        return data.strftime("%d/%m/%Y")
+
+    def formatar_telefone(tel):
+        if not tel:
+            return "-"
+        tel = ''.join(filter(str.isdigit, tel))
+        if len(tel) == 11:
+            return f"({tel[:2]}) {tel[2:7]}-{tel[7:]}"
+        if len(tel) == 10:
+            return f"({tel[:2]}) {tel[2:6]}-{tel[6:]}"
+        return tel
+
+    def formatar_documento(doc):
+        if not doc:
+            return "-"
+        doc = ''.join(filter(str.isdigit, doc))
+        if len(doc) == 11:
+            return f"{doc[:3]}.{doc[3:6]}.{doc[6:9]}-{doc[9:]}"
+        if len(doc) == 14:
+            return f"{doc[:2]}.{doc[2:5]}.{doc[5:8]}/{doc[8:12]}-{doc[12:]}"
+        return doc
+
+    app.jinja_env.filters['moeda'] = formatar_moeda
+    app.jinja_env.filters['data'] = formatar_data
+    app.jinja_env.filters['telefone'] = formatar_telefone
+    app.jinja_env.filters['doc'] = formatar_documento
+
     return app
 
-
+    
 if __name__ == '__main__':
     app = create_app()
     app.run(host='0.0.0.0', port=5000, debug=True)

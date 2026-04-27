@@ -15,27 +15,41 @@ class Cliente(db.Model):
     inscricao_estadual = db.Column(db.String(80))
     modelo_veiculo = db.Column(db.String(100))
     placa = db.Column(db.String(20))
-    pessoa = db.Column(db.String(50))  # PF ou CNPJ
-    forma_pagamento = db.Column(db.String(50))  # Pix, dinheiro, debito, credito
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    pessoa = db.Column(db.String(50))
+    forma_pagamento = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime)
 
+    servicos = db.relationship(
+        'Servico',
+        backref='cliente',
+        cascade="all, delete-orphan"
+    )
     def __repr__(self):
         return f"<Cliente {self.nome}>"
 
 
 class Servico(db.Model):
     __tablename__ = 'servicos'
+
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('clientes.id'), nullable=False)
-    descricao = db.Column(db.Text)  # qual parte do veículo precisa de reforma
-    data_emissao = db.Column(db.DateTime)
+
+    descricao = db.Column(db.Text)
     teste_bico = db.Column(db.Boolean, default=False)
     teste_bomba = db.Column(db.Boolean, default=False)
     apenas_teste = db.Column(db.Boolean, default=False)
     mao_de_obra = db.Column(db.Float, default=0.0)
+    data_emissao = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    cliente = db.relationship('Cliente', backref=db.backref('servicos', lazy=True))
+    cliente = db.relationship(
+        'Cliente',
+        backref=db.backref(
+            'servicos',
+            lazy=True,
+            cascade="all, delete-orphan"
+        )
+    )
 
 
 class Peca(db.Model):

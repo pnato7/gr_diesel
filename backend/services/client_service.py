@@ -1,5 +1,7 @@
 from ..models.usuario import Cliente
 from ..connection import db
+from ..models.servico import Servico
+from flask import redirect, url_for
 
 def list_clients():
     return Cliente.query.order_by(Cliente.created_at.desc()).all()
@@ -43,11 +45,16 @@ def update_client(client_id, data: dict):
     db.session.commit()
     return c
 
-def delete_client(client_id):
-    c = Cliente.query.get_or_404(client_id)
-    db.session.delete(c)
+def cliente_excluir(cliente_id):
+    cliente = Cliente.query.get(cliente_id)
+
+    # apaga serviços primeiro
+    Servico.query.filter_by(cliente_id=cliente.id).delete()
+
+    db.session.delete(cliente)
     db.session.commit()
-    return True
+
+    return redirect(url_for('main.clientes'))
 
 def get_or_create_anonymous_client():
     c = Cliente.query.filter_by(nome='Cliente não registrado').first()

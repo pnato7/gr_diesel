@@ -11,7 +11,7 @@
       <tr>
         <td>{{ c.id }}</td>
         <td>{{ c.nome }}</td>
-        <td>{{ c.telefone }}</td>
+        <td>{{ c.telefone|telefone }}</td>
         <td>{{ c.modelo_veiculo }} - {{ c.placa }}</td>
         <td style="display:flex;gap:8px;flex-wrap:wrap">
           <a href="/servico/novo/{{ c.id }}" class="btn" style="font-size:12px;padding:6px 8px">Novo serviço</a>

@@ -22,7 +22,7 @@
             <div style="font-size:12px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:6px">#{{ servico.id }}</div>
             <h3 style="margin:0;font-size:18px">{{ servico.cliente.nome if servico.cliente else 'Cliente Sem Cadastro' }}</h3>
             <div style="font-size:13px;color:var(--muted);margin-top:4px">
-              📅 {{ servico.created_at.strftime('%d/%m/%Y') }}
+             📅 {{ servico.created_at|data }}
             </div>
           </div>
           <div style="background:var(--primary);color:white;padding:8px 12px;border-radius:6px;font-weight:600;font-size:14px">
@@ -43,12 +43,14 @@
             <span>Total do Serviço:</span>
             {% set total_pecas = servico.pecas|map(attribute='valor_total')|sum %}
             {% set total_mo = servico.mao_de_obra or 0 %}
-            <span style="font-weight:600;color:#1f2937">R$ {{ '%.2f'|format(total_pecas + total_mo) }}</span>
+            <span style="font-weight:600;color:#1f2937">
+              {{ (total_pecas + total_mo)|moeda }}
+            </span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
             {% set total_pecas = servico.pecas|map(attribute='valor_total')|sum %}
-            <div>Peças: <strong>R$ {{ '%.2f'|format(total_pecas) }}</strong></div>
-            <div>M.O.: <strong>R$ {{ '%.2f'|format(servico.mao_de_obra or 0) }}</strong></div>
+            <div>Peças: <strong>{{ total_pecas|moeda }}</strong></div>
+            <div>M.O.: <strong>{{ servico.mao_de_obra|moeda }}</strong></div>
           </div>
         </div>
 

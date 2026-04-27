@@ -27,7 +27,8 @@
     
     <div class="stat-card warning">
       <div class="label">Faturamento Estimado</div>
-      <div class="value">R$ {% set total = servicos|map(attribute='mao_de_obra')|map('default', 0)|sum %}{{ '%.2f'|format(total) }}</div>
+    {% set total = servicos|map(attribute='mao_de_obra')|map('default', 0)|sum %}
+    {{ total|moeda }}
       <div class="change">mão de obra</div>
     </div>
     
@@ -67,7 +68,7 @@
                 <td>
                   <small style="color:var(--muted)">{{ s.descricao[:45] or '-' }}{% if s.descricao and s.descricao|length > 45 %}...{% endif %}</small>
                 </td>
-                <td><small>{{ s.created_at.strftime('%d/%m/%y') }}</small></td>
+                <td><small>{{ s.created_at|data }}</small></td>
                 <td>
                   <a href="{{ url_for('main.servico_view', servico_id=s.id) }}" class="btn-view">Ver</a>
                 </td>
@@ -96,7 +97,7 @@
             <li style="padding:12px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
               <div>
                 <div style="font-weight:600;color:#1f2937">{{ c.nome }}</div>
-                <div style="font-size:12px;color:var(--muted)">{{ c.telefone or 'N/A' }}</div>
+                <div style="font-size:12px;color:var(--muted)">{{ c.telefone|telefone }}</div>
               </div>
               <a href="/clientes" class="btn-small ghost">✓</a>
             </li>

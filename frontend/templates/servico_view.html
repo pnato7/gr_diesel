@@ -3,8 +3,12 @@
   <h1>Serviço #{{ servico.id }}</h1>
   <p><strong>Cliente:</strong> {{ servico.cliente.nome }}</p>
   <p><strong>Descrição:</strong> {{ servico.descricao }}</p>
-  <p><strong>Data de emissão:</strong> {{ servico.data_emissao.date() if servico.data_emissao else servico.created_at.date() }}</p>
-  <p><strong>Mão de obra:</strong> R$ {{ '%.2f'|format(servico.mao_de_obra) }}</p>
+  <p><strong>Data de emissão:</strong> {% if servico.data_emissao %}
+  {{ servico.data_emissao|data }}
+{% else %}
+  {{ servico.created_at|data }}
+{% endif %}</p>
+  <p><strong>Mão de obra:</strong> {{ servico.mao_de_obra|moeda }}</p>
 
   <h3>Itens</h3>
   <table class="table">
@@ -14,8 +18,8 @@
       <tr>
         <td>{{ p.unidade }}</td>
         <td>{{ p.nome }}</td>
-        <td>R$ {{ '%.2f'|format(p.valor_unitario) }}</td>
-        <td>R$ {{ '%.2f'|format(p.valor_total) }}</td>
+        <td>{{ p.valor_unitario|moeda }}</td>
+        <td>{{ p.valor_total|moeda }}</td>
       </tr>
       {% endfor %}
     </tbody>

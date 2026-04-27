@@ -1,97 +1,400 @@
-{% extends 'layout.html' %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Orçamento - GR Diesel</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 30px;
+      color: #111827;
+    }
+
+    .nota {
+      width: 900px;
+      margin: auto;
+      background: #ffffff;
+      padding: 35px;
+      border-radius: 18px;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    .topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 4px solid #111827;
+      padding-bottom: 22px;
+      margin-bottom: 25px;
+    }
+
+    .marca {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .logo {
+      width: 92px;
+      height: 92px;
+      border: 4px solid #111827;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 900;
+    }
+
+    .empresa h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 1px;
+    }
+
+    .empresa h2 {
+      margin: 4px 0 8px;
+      font-size: 15px;
+    }
+
+    .empresa p {
+      margin: 3px 0;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .box-orcamento {
+      border: 3px solid #111827;
+      border-radius: 14px;
+      padding: 18px 28px;
+      text-align: center;
+      min-width: 230px;
+    }
+
+    .box-orcamento h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .box-orcamento p {
+      margin: 4px 0;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .secao {
+      margin-top: 22px;
+    }
+
+    .titulo-secao {
+      background: #111827;
+      color: #ffffff;
+      padding: 9px 14px;
+      border-radius: 8px 8px 0 0;
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .dados {
+      border: 1px solid #d1d5db;
+      border-top: none;
+      padding: 16px;
+      border-radius: 0 0 8px 8px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .campo {
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+    }
+
+    .campo strong {
+      color: #374151;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #111827;
+      color: white;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      text-align: left;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .descricao-servico {
+      margin-top: 14px;
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .totais {
+      margin-top: 22px;
+      margin-left: auto;
+      width: 360px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    .linha-total {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .linha-total.final {
+      background: #111827;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: none;
+    }
+
+    .observacoes {
+      margin-top: 28px;
+      padding: 16px;
+      border: 1px dashed #6b7280;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #374151;
+    }
+
+    .assinaturas {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 55px;
+      gap: 40px;
+    }
+
+    .assinatura {
+      flex: 1;
+      text-align: center;
+      border-top: 1px solid #111827;
+      padding-top: 8px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .rodape {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 14px;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .nota {
+        box-shadow: none;
+        border-radius: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
   <div class="nota">
-    <div class="nota-header">
-      <div class="nota-gr">GR</div>
-      <div class="nota-company">
-        <h2>GR DIESEL</h2>
-        <p><strong>ELETRO LTDA ME</strong></p>
-        <p>BOMBAS INJETORES, BICOS INJETORES</p>
-        <p>ELÉTRICA EM GERAL, INJEÇÃO A DIESEL</p>
-        <p>FONE: (61) 3686-2702 • WHATSAPP: (61) 9934-0031</p>
-        <p>SHN ÁREA ESPECIAL 22 TAGUATINGA NORTE - BRASILIA/DF</p>
+
+    <div class="topo">
+      <div class="marca">
+        <div class="logo">GR</div>
+
+        <div class="empresa">
+          <h1>GR DIESEL</h1>
+          <h2>ELETRO LTDA ME</h2>
+          <p>Bombas injetoras, bicos injetores, elétrica em geral e injeção a diesel</p>
+          <p>Fone: (61) 3686-2702 • WhatsApp: (61) 9934-0031</p>
+          <p>SHN Área Especial 22, Taguatinga Norte - Brasília/DF</p>
+        </div>
       </div>
-      <div class="nota-box">
-        <h3>ORÇAMENTO</h3>
-        <div class="nota-meta">
-          <div>DATA DA EMISSÃO:</div>
-          <div style="font-weight:700">{{ servico.data_emissao.date() if servico.data_emissao else servico.created_at.date() }}</div>
+
+      <div class="box-orcamento">
+        <h2>ORÇAMENTO</h2>
+        <p>DATA DA EMISSÃO</p><p>
+          {% if servico.data_emissao %}
+          {{ servico.data_emissao|data }}
+          {% else %}
+          {{ servico.created_at|data }}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="secao">
+      <div class="titulo-secao">Dados do cliente</div>
+
+      <div class="dados">
+        <div class="campo">
+          <strong>Nome:</strong>
+          {% if servico.cliente %}
+          {{ servico.cliente.nome }}
+          {% else %}
+          Cliente não registrado
+          {% endif %}
+        </div>
+
+        <div class="campo">
+          <strong>Telefone:</strong>
+          {{ servico.cliente.telefone|telefone  if servico.cliente and servico.cliente.telefone else '-' }}
+        </div>
+
+        <div class="campo">
+          <strong>Endereço:</strong>
+          {{ servico.cliente.endereco if servico.cliente and servico.cliente.endereco else '-' }}
+        </div>
+
+        <div class="campo">
+          <strong>Cidade/UF:</strong>
+          {{ servico.cliente.cidade if servico.cliente and servico.cliente.cidade else '-' }}
+          /
+          {{ servico.cliente.estado if servico.cliente and servico.cliente.estado else '-' }}
+        </div>
+
+        <div class="campo">
+          <strong>CNPJ/CPF:</strong>
+          {{  servico.cliente.cnpj_cpf|doc  if servico.cliente and servico.cliente.cnpj_cpf else '-' }}
+        </div>
+
+        <div class="campo">
+          <strong>Inscrição Estadual:</strong>
+          {{ servico.cliente.inscricao_estadual if servico.cliente and servico.cliente.inscricao_estadual else '-' }}
+        </div>
+
+        <div class="campo">
+          <strong>Veículo:</strong>
+          {{ servico.cliente.modelo_veiculo if servico.cliente and servico.cliente.modelo_veiculo else '-' }}
+        </div>
+
+        <div class="campo">
+          <strong>Placa:</strong>
+          {{ servico.cliente.placa if servico.cliente and servico.cliente.placa else '-' }}
         </div>
       </div>
     </div>
 
-    <div class="nota-client">
-      <div class="row">
-        <div class="cell full"><strong>TOMADOR DO SERVIÇO OU DESTINATÁRIO</strong></div>
-        <div class="cell small">TEL.</div>
-      </div>
-      <div class="row">
-        <div class="cell full">{{ servico.cliente.nome or '' }}</div>
-        <div class="cell small">{{ servico.cliente.telefone or '' }}</div>
-      </div>
+    <div class="secao">
+      <div class="titulo-secao">Descrição dos serviços e peças</div>
 
-      <div class="row">
-        <div class="cell full">ENDEREÇO: {{ servico.cliente.endereco or '' }}</div>
-      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="center">Qtd.</th>
+            <th>Descrição</th>
+            <th class="right">Preço Unit.</th>
+            <th class="right">Preço Total</th>
+          </tr>
+        </thead>
 
-      <div class="row">
-        <div class="cell medium">CIDADE: {{ servico.cliente.cidade or '' }}</div>
-        <div class="cell small">CEP: {{ servico.cliente.cep or '' }}</div>
-        <div class="cell small">ESTADO: {{ servico.cliente.estado or '' }}</div>
-      </div>
-
-      <div class="row">
-        <div class="cell medium">CNPJ/CPF: {{ servico.cliente.cnpj_cpf or '' }}</div>
-        <div class="cell small">INS. EST: {{ servico.cliente.inscricao_estadual or '' }}</div>
-      </div>
-
-    </div>
-
-    <div class="nota-items">
-    <table width="100%" cellspacing="0">
-      <thead>
-        <tr>
-          <th class="num">QUANT.</th>
-          <th class="desc">DESCRIÇÃO DOS SERVIÇOS</th>
-          <th class="unit">PREÇO UNIT.</th>
-          <th class="total">PREÇO TOTAL</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% set total_rows = 16 %}
-        {% for p in servico.pecas %}
-        <tr class="first-row">
-          <td class="num">{{ p.unidade }}</td>
-          <td class="desc">{{ p.nome }}</td>
-          <td class="unit">R$ {{ '%.2f'|format(p.valor_unitario) }}</td>
-          <td class="total">R$ {{ '%.2f'|format(p.valor_total) }}</td>
-        </tr>
-        {% endfor %}
-
-        {% set blanks = total_rows - (servico.pecas|length) %}
-        {% if blanks > 0 %}
-          {% for i in range(blanks) %}
-            <tr class="blank">
-              <td class="num">&nbsp;</td>
-              <td class="desc">&nbsp;</td>
-              <td class="unit">&nbsp;</td>
-              <td class="total">&nbsp;</td>
-            </tr>
+        <tbody>
+          {% for peca in servico.pecas %}
+          <tr>
+            <td class="center">{{ peca.unidade }}</td>
+            <td>{{ peca.nome }}</td>
+            <td class="right">{{ peca.valor_unitario|moeda }}</td>
+            <td class="right">{{ peca.valor_total|moeda }}</td>
+          </tr>
           {% endfor %}
-        {% endif %}
-      </tbody>
-    </table>
-    </div>
 
-    <div class="nota-summary">
-      <div class="sem">SEM VALOR FISCAL</div>
-      <div>
-        <div class="summary-pecas">Total peças: <span class="valor-pecas">R$ {{ '%.2f'|format(servico.nota.total_pecas if servico.nota else 0.0) }}</span></div>
-        <div class="summary-mao">Mão de obra: <span class="valor-mao">R$ {{ '%.2f'|format(servico.mao_de_obra) }}</span></div>
-        <div class="total-box">TOTAL: <span class="valor-total">R$ {{ '%.2f'|format(servico.nota.total if servico.nota else (servico.mao_de_obra + (servico.pecas|sum(attribute='valor_total')))) }}</span></div>
+          {% if servico.mao_de_obra and servico.mao_de_obra > 0 %}
+          <tr>
+            <td class="center">1</td>
+            <td>Mão de obra</td>
+            <td class="right">R$ {{ servico.mao_de_obra|moeda }}</td>
+            <td class="right">R$ {{ servico.mao_de_obra|moeda }}</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      {% if servico.descricao %}
+      <div class="descricao-servico">
+        <strong>Observação do serviço:</strong><br>
+        {{ servico.descricao }}
       </div>
+      {% endif %}
     </div>
 
-    <div class="nota-footer">Documento sem valor fiscal — GR DIESEL ELETRO LTDA ME</div>
+    <div class="totais">
+      <div class="linha-total">
+        <span>Total de peças</span>
+        <strong>{{ nota.total_pecas|moeda }}</strong>
+      </div>
+
+
+      <div class="linha-total">
+        <span>Mão de obra</span>
+        <strong>{{ servico.mao_de_obra|moeda }}</strong>
+      </div>
+
+
+      <div class="linha-total final">
+        <span>Total geral</span>
+        <span>{{ nota.total|moeda }}</span>
+      </div>
+      </div>
+    <div class="observacoes">
+      <strong>Condições:</strong><br>
+      Este orçamento é válido mediante confirmação do serviço. Valores podem sofrer alteração caso sejam identificadas novas necessidades durante a execução.
+    </div>
+
+    <div class="assinaturas">
+      <div class="assinatura">GR Diesel Eletro LTDA ME</div>
+      <div class="assinatura">Cliente / Responsável</div>
+    </div>
+
+    <div class="rodape">
+      GR Diesel Eletro LTDA ME • Serviços automotivos diesel • Brasília/DF
+    </div>
+
   </div>
-{% endblock %}
+</body>
+</html>
