@@ -1,6 +1,9 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <h1>Clientes</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h1>Clientes</h1>
+    <a href="/cliente/novo" class="btn"><i class="fas fa-plus"></i> Novo Cliente</a>
+  </div>
   <table class="table">
     <thead><tr><th>ID</th><th>Nome</th><th>Telefone</th><th>Veículo</th><th>Ações</th></tr></thead>
     <tbody>
@@ -10,7 +13,13 @@
         <td>{{ c.nome }}</td>
         <td>{{ c.telefone }}</td>
         <td>{{ c.modelo_veiculo }} - {{ c.placa }}</td>
-        <td><a href="/servico/novo/{{ c.id }}">Novo serviço</a></td>
+        <td style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="/servico/novo/{{ c.id }}" class="btn" style="font-size:12px;padding:6px 8px">Novo serviço</a>
+          <a href="/cliente/{{ c.id }}/editar" class="btn" style="font-size:12px;padding:6px 8px;background:#4299e1">Editar</a>
+          <form method="post" action="/cliente/{{ c.id }}/excluir" style="display:inline;margin:0" data-confirm="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.">
+            <button type="submit" class="btn" style="font-size:12px;padding:6px 8px;background:#e53e3e;color:white;border:none;cursor:pointer">Excluir</button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

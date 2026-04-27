@@ -62,13 +62,21 @@
         {% endif %}
       </div>
 
-      <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;gap:8px">
+      <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;gap:8px;flex-wrap:wrap">
         <a href="{{ url_for('main.servico_view', servico_id=servico.id) }}" class="btn" style="flex:1;text-align:center;margin:0">
           <i class="fas fa-eye"></i> Visualizar
         </a>
         <a href="{{ url_for('main.nota_download', servico_id=servico.id) }}" class="btn secondary" style="flex:1;text-align:center;margin:0">
           <i class="fas fa-download"></i> Baixar
         </a>
+        <a href="/servico/{{ servico.id }}/editar" class="btn secondary" style="flex:1;text-align:center;margin:0;background:#4299e1">
+          <i class="fas fa-edit"></i> Editar
+        </a>
+        <form method="post" action="/servico/{{ servico.id }}/excluir" style="display:flex;flex:1;margin:0" data-confirm="Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.">
+          <button type="submit" class="btn secondary" style="flex:1;text-align:center;margin:0;background:#e53e3e;color:white;border:none;cursor:pointer">
+            <i class="fas fa-trash"></i> Excluir
+          </button>
+        </form>
       </div>
     </div>
     {% endfor %}

@@ -1,65 +1,72 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <h1>Novo Cliente</h1>
+  <h1>{% if cliente %}Editar Cliente{% else %}Novo Cliente{% endif %}</h1>
   <form method="post" class="card" style="padding:18px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div>
         <label>Nome</label>
-        <input name="nome" required class="form-control" placeholder="Nome completo">
+        <input name="nome" required class="form-control" placeholder="Nome completo" value="{{ cliente.nome if cliente else '' }}">
       </div>
       <div>
         <label>Telefone</label>
-        <input name="telefone" class="form-control" placeholder="(61) 99999-0000">
+        <input name="telefone" class="form-control" placeholder="(61) 99999-0000" value="{{ cliente.telefone if cliente else '' }}">
       </div>
       <div>
         <label>Endereço</label>
-        <input name="endereco" class="form-control">
+        <input name="endereco" class="form-control" value="{{ cliente.endereco if cliente else '' }}">
       </div>
       <div>
         <label>Cidade</label>
-        <input name="cidade" class="form-control">
+        <input name="cidade" class="form-control" value="{{ cliente.cidade if cliente else '' }}">
       </div>
       <div>
         <label>CEP</label>
-        <input name="cep" class="form-control">
+        <input name="cep" class="form-control" value="{{ cliente.cep if cliente else '' }}">
       </div>
       <div>
         <label>Estado</label>
-        <input name="estado" class="form-control">
+        <input name="estado" class="form-control" value="{{ cliente.estado if cliente else '' }}">
       </div>
       <div>
         <label>CNPJ/CPF</label>
-        <input name="cnpj_cpf" class="form-control">
+        <input name="cnpj_cpf" class="form-control" value="{{ cliente.cnpj_cpf if cliente else '' }}">
       </div>
       <div>
         <label>Inscrição Estadual</label>
-        <input name="inscricao_estadual" class="form-control">
+        <input name="inscricao_estadual" class="form-control" value="{{ cliente.inscricao_estadual if cliente else '' }}">
       </div>
       <div>
         <label>Modelo do veículo</label>
-        <input name="modelo_veiculo" class="form-control">
+        <input name="modelo_veiculo" class="form-control" value="{{ cliente.modelo_veiculo if cliente else '' }}">
       </div>
       <div>
         <label>Placa</label>
-        <input name="placa" class="form-control">
+        <input name="placa" class="form-control" value="{{ cliente.placa if cliente else '' }}">
       </div>
       <div>
         <label>PF ou CNPJ</label>
-        <input name="pessoa" class="form-control">
+        <input name="pessoa" class="form-control" value="{{ cliente.pessoa if cliente else '' }}">
       </div>
       <div>
         <label>Forma de pagamento</label>
         <select name="forma_pagamento" class="form-control">
-          <option>Pix</option>
-          <option>Dinheiro</option>
-          <option>Débito</option>
-          <option>Crédito</option>
+          <option {% if not cliente or not cliente.forma_pagamento %}selected{% endif %}>Pix</option>
+          <option {% if cliente and cliente.forma_pagamento == 'Dinheiro' %}selected{% endif %}>Dinheiro</option>
+          <option {% if cliente and cliente.forma_pagamento == 'Débito' %}selected{% endif %}>Débito</option>
+          <option {% if cliente and cliente.forma_pagamento == 'Crédito' %}selected{% endif %}>Crédito</option>
         </select>
       </div>
     </div>
     <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
       <a href="/clientes" class="btn secondary">Cancelar</a>
-      <button type="submit" class="btn">Salvar</button>
+      {% if cliente %}
+        <button type="submit" class="btn">Salvar Alterações</button>
+        <form method="post" action="/cliente/{{ cliente.id }}/excluir" style="display:inline;margin:0" data-confirm="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.">
+          <button type="submit" class="btn" style="background:#e53e3e;color:white;border:none;cursor:pointer">Excluir</button>
+        </form>
+      {% else %}
+        <button type="submit" class="btn">Salvar</button>
+      {% endif %}
     </div>
   </form>
 {% endblock %}

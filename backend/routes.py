@@ -57,6 +57,38 @@ def cliente_novo():
     return render_template('cliente_form.html')
 
 
+@main_bp.route('/cliente/<int:cliente_id>/editar', methods=['GET', 'POST'])
+def cliente_editar(cliente_id):
+    cliente = Cliente.query.get_or_404(cliente_id)
+    if request.method == 'POST':
+        data = request.form
+        cliente.nome = data.get('nome', cliente.nome)
+        cliente.telefone = data.get('telefone', cliente.telefone)
+        cliente.endereco = data.get('endereco', cliente.endereco)
+        cliente.cidade = data.get('cidade', cliente.cidade)
+        cliente.cep = data.get('cep', cliente.cep)
+        cliente.estado = data.get('estado', cliente.estado)
+        cliente.cnpj_cpf = data.get('cnpj_cpf', cliente.cnpj_cpf)
+        cliente.inscricao_estadual = data.get('inscricao_estadual', cliente.inscricao_estadual)
+        cliente.modelo_veiculo = data.get('modelo_veiculo', cliente.modelo_veiculo)
+        cliente.placa = data.get('placa', cliente.placa)
+        cliente.pessoa = data.get('pessoa', cliente.pessoa)
+        cliente.forma_pagamento = data.get('forma_pagamento', cliente.forma_pagamento)
+        db.session.commit()
+        flash('Cliente atualizado com sucesso', 'success')
+        return redirect(url_for('main.clientes'))
+    return render_template('cliente_form.html', cliente=cliente)
+
+
+@main_bp.route('/cliente/<int:cliente_id>/excluir', methods=['POST'])
+def cliente_excluir(cliente_id):
+    cliente = Cliente.query.get_or_404(cliente_id)
+    db.session.delete(cliente)
+    db.session.commit()
+    flash('Cliente excluído com sucesso', 'success')
+    return redirect(url_for('main.clientes'))
+
+
 @main_bp.route('/servico/novo', methods=['GET'])
 def servico_novo_root_get():
     # renderizar formulário sem cliente selecionado
@@ -431,6 +463,87 @@ def servicos():
 def servico_view(servico_id):
     servico = Servico.query.get_or_404(servico_id)
     return render_template('servico_view.html', servico=servico)
+
+
+@main_bp.route('/servico/<int:servico_id>/editar', methods=['GET', 'POST'])
+def servico_editar(servico_id):
+    servico = Servico.query.get_or_404(servico_id)
+    clientes = Cliente.query.order_by(Cliente.nome).all()
+    
+    if request.method == 'POST':
+        data = request.form
+        cliente_choice = data.get('cliente_choice')
+        
+        # decidir cliente
+        selected_cliente = None
+        if cliente_choice:
+            if cliente_choice == 'none':
+                selected_cliente = Cliente.query.filter_by(nome='Cliente não registrado').first()
+                if not selected_cliente:
+                    selected_cliente = Cliente(nome='Cliente não registrado')
+                    db.session.add(selected_cliente)
+                    db.session.commit()
+            elif cliente_choice.startswith('existing_'):
+                try:
+                    cid = int(cliente_choice.split('_', 1)[1])
+                    selected_cliente = Cliente.query.get(cid)
+                except Exception:
+                    selected_cliente = servico.cliente
+        
+        if not selected_cliente:
+            selected_cliente = servico.cliente
+        
+        servico.cliente_id = selected_cliente.id
+        servico.descricao = data.get('descricao', servico.descricao)
+        servico.teste_bico = bool(data.get('teste_bico'))
+        servico.teste_bomba = bool(data.get('teste_bomba'))
+        servico.apenas_teste = bool(data.get('apenas_teste'))
+        servico.mao_de_obra = float(data.get('mao_de_obra') or 0.0)
+        
+        # Deletar peças antigas
+        Peca.query.filter_by(servico_id=servico_id).delete()
+        
+        # Adicionar novas peças
+        nomes = request.form.getlist('pecas_nome')
+        qts = request.form.getlist('pecas_qtde')
+        valores = request.form.getlist('pecas_valor')
+        total_pecas = 0.0
+        for n, q, v in zip(nomes, qts, valores):
+            if not n:
+                continue
+            p = Peca(nome=n, unidade=int(q or 1), valor_unitario=float(v or 0.0), servico_id=servico.id)
+            db.session.add(p)
+            total_pecas += p.valor_total
+        
+        # Atualizar nota
+        nota = NotaServico.query.filter_by(servico_id=servico_id).first()
+        if nota:
+            nota.total_pecas = total_pecas
+            nota.total = total_pecas + servico.mao_de_obra
+        
+        db.session.commit()
+        flash('Serviço atualizado com sucesso', 'success')
+        return redirect(url_for('main.servicos'))
+    
+    return render_template('servico_form.html', cliente=servico.cliente, clientes=clientes, servico=servico)
+
+
+@main_bp.route('/servico/<int:servico_id>/excluir', methods=['POST'])
+def servico_excluir(servico_id):
+    servico = Servico.query.get_or_404(servico_id)
+    
+    # Deletar peças
+    Peca.query.filter_by(servico_id=servico_id).delete()
+    
+    # Deletar nota
+    NotaServico.query.filter_by(servico_id=servico_id).delete()
+    
+    # Deletar serviço
+    db.session.delete(servico)
+    db.session.commit()
+    
+    flash('Serviço excluído com sucesso', 'success')
+    return redirect(url_for('main.servicos'))
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
